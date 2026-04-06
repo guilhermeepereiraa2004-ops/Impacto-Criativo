@@ -160,9 +160,9 @@ export default function Admin() {
     setShowLeadForm(false);
   };
 
-  // Hardcoded credentials for this specific request
-  const ADMIN_EMAIL = 'wesleyrocha@gmail.com';
-  const ADMIN_PASS = 'naoseinao';
+  // Use environment variables for authentication
+  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+  const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD;
 
   useEffect(() => {
     const authStatus = localStorage.getItem('admin_session');
