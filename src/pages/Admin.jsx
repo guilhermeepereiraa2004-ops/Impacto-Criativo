@@ -36,11 +36,21 @@ export default function Admin() {
   const [showClienteForm, setShowClienteForm] = useState(false);
   const [leads, setLeads] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  const [newLead, setNewLead] = useState({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '' });
+  const [newLead, setNewLead] = useState({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '', valor: '', cpf: '', rg: '' });
   const [generatingContractId, setGeneratingContractId] = useState(null);
   const [clienteEditando, setClienteEditando] = useState(null); // { id, nome, email, telefone, pedido, valor, cpf, rg, observacoes, ... }
 
   const STATUS_OPTIONS = ['Novo', 'Contatado', 'Análise', 'Perdido', 'Convertido'];
+  const SERVICES_OPTIONS = [
+    'Camisas Esportivas',
+    'Camisas Personalizadas',
+    'Criações de Logotipo',
+    'Design Geral',
+    'Cards & Social Media',
+    'Arte de Camisa',
+    'Edição de Vídeo',
+    'Currículo Personalizado'
+  ];
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -138,25 +148,34 @@ export default function Admin() {
   }, []);
 
   const handleAddLead = async (e) => {
-    e.preventDefault();
+    // 1. Prepare lead
     const lead = {
       ...newLead,
       status: 'Novo',
       data: new Date().toLocaleDateString('pt-BR')
     };
-    
-    // Save to Supabase (Optional)
+
+    let savedLead = { ...lead, id: Date.now() }; // Fallback temporary ID
+
+    // 2. Save to Supabase and get Real ID
     try {
-      await supabase.from('leads').insert([lead]);
+      const { data, error } = await supabase
+        .from('leads')
+        .insert([lead])
+        .select();
+      
+      if (data && data[0]) {
+        savedLead = data[0];
+      }
     } catch (err) {
-      console.error('Erro ao salvar no Supabase.');
+      console.error('Erro ao salvar no Supabase, usando ID local temporário.');
     }
 
-    // Always update UI & LocalStorage
-    const updatedLeads = [{ ...lead, id: Date.now() }, ...leads];
+    // 3. Always update UI & LocalStorage with the best available data
+    const updatedLeads = [savedLead, ...leads];
     setLeads(updatedLeads);
     localStorage.setItem('impacto_leads', JSON.stringify(updatedLeads));
-    setNewLead({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '' });
+    setNewLead({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '', valor: '', cpf: '', rg: '' });
     setShowLeadForm(false);
   };
 
@@ -551,43 +570,79 @@ export default function Admin() {
                     <form 
                       onSubmit={async (e) => {
                         e.preventDefault();
-                        const clienteData = { ...newLead, status: 'Convertido', data: new Date().toLocaleDateString('pt-BR') };
-                        try { await supabase.from('leads').insert([clienteData]); } catch (err) {}
-                        const updated = [{ ...clienteData, id: Date.now() }, ...leads];
+                        const lead = { ...newLead, status: 'Convertido', data: new Date().toLocaleDateString('pt-BR') };
+                        let savedLead = { ...lead, id: Date.now() };
+
+                        try { 
+                          const { data, error } = await supabase.from('leads').insert([lead]).select(); 
+                          if (data && data[0]) savedLead = data[0];
+                        } catch (err) { console.error('Erro Supabase'); }
+
+                        const updated = [savedLead, ...leads];
                         setLeads(updated);
                         localStorage.setItem('impacto_leads', JSON.stringify(updated));
-                        setNewLead({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '' });
+                        setNewLead({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '', valor: '', cpf: '', rg: '' });
                         setShowClienteForm(false);
                       }}
                       className="space-y-5"
                     >
+                      {/* Nome */}
                       <div>
                         <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Nome Completo</label>
-                        <input type="text" required value={newLead.nome} onChange={(e) => setNewLead({...newLead, nome: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="Nome do cliente" />
+                        <input type="text" value={newLead.nome} onChange={(e) => setNewLead({...newLead, nome: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="Nome do cliente" />
                       </div>
+
+                      {/* E-mail e WhatsApp */}
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">E-mail</label>
-                          <input type="email" required value={newLead.email} onChange={(e) => setNewLead({...newLead, email: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="email@exemplo.com" />
+                          <input type="email" value={newLead.email} onChange={(e) => setNewLead({...newLead, email: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="email@exemplo.com" />
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">WhatsApp</label>
-                          <input type="tel" required value={newLead.telefone} onChange={(e) => setNewLead({...newLead, telefone: formatPhone(e.target.value)})} maxLength={15} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="(00) 00000-0000" />
+                          <input type="tel" value={newLead.telefone} onChange={(e) => setNewLead({...newLead, telefone: formatPhone(e.target.value)})} maxLength={15} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="(00) 00000-0000" />
                         </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Serviço</label>
-                        <select value={newLead.pedido} onChange={(e) => setNewLead({...newLead, pedido: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]">
-                          <option value="Camisas Esportivas">Camisas Esportivas</option>
-                          <option value="Camisas Personalizadas">Camisas Personalizadas</option>
-                          <option value="Criações de Logotipo">Criações de Logotipo</option>
-                          <option value="Design Geral">Design Geral</option>
-                          <option value="Cards & Social Media">Cards & Social Media</option>
-                          <option value="Arte de Camisa">Arte de Camisa</option>
-                          <option value="Edição de Vídeo">Edição de Vídeo</option>
-                          <option value="Currículo Personalizado">Currículo Personalizado</option>
-                        </select>
+
+                      {/* CPF e RG */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">CPF</label>
+                          <input 
+                            type="text" 
+                            value={newLead.cpf} 
+                            onChange={(e) => {
+                              let v = e.target.value.replace(/\D/g, '');
+                              if (v.length > 3) v = v.slice(0,3) + '.' + v.slice(3);
+                              if (v.length > 7) v = v.slice(0,7) + '.' + v.slice(7);
+                              if (v.length > 11) v = v.slice(0,11) + '-' + v.slice(11);
+                              setNewLead({...newLead, cpf: v});
+                            }} 
+                            maxLength={14}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" 
+                            placeholder="000.000.000-00" 
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">RG</label>
+                          <input type="text" value={newLead.rg} onChange={(e) => setNewLead({...newLead, rg: e.target.value})} maxLength={12} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="00.000.000-0" />
+                        </div>
                       </div>
+
+                      {/* Serviço e Valor */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Serviço</label>
+                          <select value={newLead.pedido} onChange={(e) => setNewLead({...newLead, pedido: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]">
+                            {SERVICES_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Valor (R$)</label>
+                          <input type="number" step="0.01" value={newLead.valor} onChange={(e) => setNewLead({...newLead, valor: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] font-bold text-emerald-600" placeholder="0,00" />
+                        </div>
+                      </div>
+
                       <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-500/20 transition-all">Cadastrar Cliente Ativo</button>
                     </form>
                   </div>
