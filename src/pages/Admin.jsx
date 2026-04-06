@@ -33,6 +33,7 @@ export default function Admin() {
 
   // Gerador de Leads / Pedidos State
   const [showLeadForm, setShowLeadForm] = useState(false);
+  const [showClienteForm, setShowClienteForm] = useState(false);
   const [leads, setLeads] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [newLead, setNewLead] = useState({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '' });
@@ -320,36 +321,32 @@ export default function Admin() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col">
         {/* Top Header */}
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-8">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold">
-              {activeTab === 'dashboard' && 'Visão Geral'}
+        <header className="h-16 md:h-20 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-8 sticky top-0 z-30">
+          <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+            <h2 className="text-lg md:text-xl font-black truncate">
+              {activeTab === 'dashboard' && 'Dashboard'}
               {activeTab === 'clientes' && 'Clientes'}
               {activeTab === 'pedidos' && 'Pedidos'}
-              {activeTab === 'configuracoes' && 'Configurações'}
+              {activeTab === 'configuracoes' && 'Config.'}
             </h2>
-            <div className="h-6 w-px bg-gray-200"></div>
-            <p className="text-gray-400 text-sm">Bem-vindo de volta, Wesley.</p>
+            <div className="h-6 w-px bg-gray-200 hidden md:block"></div>
+            <p className="text-gray-400 text-xs md:text-sm hidden md:block truncate">Bem-vindo, Wesley.</p>
           </div>
-          <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-[#177BCA] transition-colors group">
-              <ExternalLink className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              Ver Site
+          <div className="flex items-center gap-3 md:gap-6">
+            <Link to="/" className="flex items-center gap-2 text-[10px] md:text-sm font-bold text-gray-500 hover:text-[#177BCA] transition-colors group">
+              <ExternalLink className="w-4 h-4" />
+              <span className="hidden sm:inline">Ver Site</span>
             </Link>
-            <div className="w-px h-8 bg-gray-100"></div>
-            <button className="relative w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#177BCA] transition-colors">
-              <MessageSquare className="w-6 h-6" />
-            </button>
-            <div className="w-px h-8 bg-gray-100"></div>
-            <div className="flex items-center gap-3">
-               <ShieldCheck className="text-green-500 w-5 h-5" />
-               <span className="text-xs font-black uppercase tracking-widest text-green-600 bg-green-50 px-2.5 py-1 rounded-full">Sessão Segura</span>
+            <div className="w-px h-6 md:h-8 bg-gray-100"></div>
+            <div className="flex items-center gap-2 text-green-600 bg-green-50 px-2 md:px-3 py-1 rounded-full border border-green-100">
+               <ShieldCheck className="w-4 h-4" />
+               <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Seguro</span>
             </div>
           </div>
         </header>
 
         {/* Dynamic Content Area */}
-        <div className="p-8 space-y-8">
+        <div className="p-4 md:p-8 space-y-8 pb-32 lg:pb-8">
           {activeTab === 'dashboard' && (
             <>
               {/* Stats Grid */}
@@ -382,97 +379,151 @@ export default function Admin() {
                   <h3 className="text-2xl font-black">Base de Clientes</h3>
                   <p className="text-gray-500">Leads que foram convertidos em projetos reais.</p>
                 </div>
+                <button 
+                  onClick={() => setShowClienteForm(true)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-indigo-500/20"
+                >
+                  <Plus className="w-5 h-5" />
+                  Novo Cliente Direto
+                </button>
               </div>
 
               <div className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100">
                 {leads.filter(l => l.status === 'Convertido').length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="text-gray-400 text-sm border-b border-gray-100">
-                          <th className="pb-4 font-medium pl-4">Cliente</th>
-                          <th className="pb-4 font-medium">Contato</th>
-                          <th className="pb-4 font-medium">Serviço</th>
-                          <th className="pb-4 font-medium">Valor</th>
-                          <th className="pb-4 font-medium">Data</th>
-                          <th className="pb-4 font-medium">Ações</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {leads.filter(l => l.status === 'Convertido').map(cliente => (
-                          <tr key={cliente.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
-                            <td className="py-4 pl-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-indigo-600 text-sm">
-                                  {cliente.nome.charAt(0)}
-                                </div>
-                                <div>
-                                  <p className="font-bold text-gray-900 text-sm">{cliente.nome}</p>
-                                  {cliente.cpf && <p className="text-[10px] text-gray-400">CPF: {cliente.cpf}</p>}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-4">
-                              <p className="text-sm font-medium">{cliente.email}</p>
-                              <p className="text-xs text-gray-400">{cliente.telefone}</p>
-                            </td>
-                            <td className="py-4">
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-wide">
-                                {cliente.pedido}
-                              </span>
-                            </td>
-                            <td className="py-4">
-                              {cliente.valor ? (
-                                <span className="font-black text-emerald-600 text-sm">
-                                  R$ {parseFloat(cliente.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-gray-400 italic">Não definido</span>
-                              )}
-                            </td>
-                            <td className="py-4">
-                              <p className="text-xs text-indigo-600 font-bold">Cliente Ativo</p>
-                              <p className="text-[10px] text-gray-400">{cliente.data}</p>
-                            </td>
-                            <td className="py-4 pr-2">
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => setClienteEditando({ ...cliente })}
-                                  className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
-                                  title="Editar informações"
-                                >
-                                  <Pencil className="w-3 h-3" />
-                                  Editar
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    setGeneratingContractId(cliente.id);
-                                    try {
-                                      await gerarContrato(cliente);
-                                    } catch (err) {
-                                      console.error('Erro ao gerar contrato:', err);
-                                    } finally {
-                                      setGeneratingContractId(null);
-                                    }
-                                  }}
-                                  disabled={generatingContractId === cliente.id}
-                                  className="flex items-center gap-1.5 bg-[#177BCA]/10 hover:bg-[#177BCA] text-[#177BCA] hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition-all disabled:opacity-60 disabled:cursor-wait whitespace-nowrap"
-                                  title="Gerar contrato .docx"
-                                >
-                                  {generatingContractId === cliente.id ? (
-                                    <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                  ) : (
-                                    <FileText className="w-3 h-3" />
-                                  )}
-                                  {generatingContractId === cliente.id ? 'Gerando...' : 'Contrato'}
-                                </button>
-                              </div>
-                            </td>
+                  <>
+                    {/* Desktop Table View */}
+                    <div className="hidden lg:block overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="text-gray-400 text-sm border-b border-gray-100">
+                            <th className="pb-4 font-medium pl-4">Cliente</th>
+                            <th className="pb-4 font-medium">Contato</th>
+                            <th className="pb-4 font-medium">Serviço</th>
+                            <th className="pb-4 font-medium">Valor</th>
+                            <th className="pb-4 font-medium">Data</th>
+                            <th className="pb-4 font-medium">Ações</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {leads.filter(l => l.status === 'Convertido').map(cliente => (
+                            <tr key={cliente.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
+                              <td className="py-4 pl-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-indigo-600 text-sm">
+                                    {cliente.nome.charAt(0)}
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-gray-900 text-sm">{cliente.nome}</p>
+                                    {cliente.cpf && <p className="text-[10px] text-gray-400">CPF: {cliente.cpf}</p>}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-4">
+                                <p className="text-sm font-medium">{cliente.email}</p>
+                                <p className="text-xs text-gray-400">{cliente.telefone}</p>
+                              </td>
+                              <td className="py-4">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-wide">
+                                  {cliente.pedido}
+                                </span>
+                              </td>
+                              <td className="py-4">
+                                {cliente.valor ? (
+                                  <span className="font-black text-emerald-600 text-sm">
+                                    R$ {parseFloat(cliente.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-gray-400 italic">Não definido</span>
+                                )}
+                              </td>
+                              <td className="py-4">
+                                <p className="text-xs text-indigo-600 font-bold">Cliente Ativo</p>
+                                <p className="text-[10px] text-gray-400">{cliente.data}</p>
+                              </td>
+                              <td className="py-4 pr-2">
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => setClienteEditando({ ...cliente })}
+                                    className="flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
+                                    title="Editar informações"
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                    Editar
+                                  </button>
+                                  <button
+                                    onClick={async () => {
+                                      setGeneratingContractId(cliente.id);
+                                      try { await gerarContrato(cliente); } catch (err) { console.error('Erro contrato:', err); } finally { setGeneratingContractId(null); }
+                                    }}
+                                    disabled={generatingContractId === cliente.id}
+                                    className="flex items-center gap-1.5 bg-[#177BCA]/10 hover:bg-[#177BCA] text-[#177BCA] hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
+                                  >
+                                    {generatingContractId === cliente.id ? <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <FileText className="w-3 h-3" />}
+                                    Contrato
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="lg:hidden space-y-4">
+                      {leads.filter(l => l.status === 'Convertido').map(cliente => (
+                        <div key={cliente.id} className="bg-gray-50/50 rounded-3xl p-4 border border-gray-100">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center font-bold text-indigo-600 text-sm">
+                                {cliente.nome.charAt(0)}
+                              </div>
+                              <div className="overflow-hidden">
+                                <p className="font-bold text-gray-900 text-sm truncate max-w-[150px]">{cliente.nome}</p>
+                                <p className="text-[10px] text-gray-400">{cliente.data}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              {cliente.valor ? (
+                                <p className="font-black text-emerald-600 text-sm">R$ {parseFloat(cliente.valor).toLocaleString('pt-BR')}</p>
+                              ) : (
+                                <p className="text-[10px] text-gray-400 italic">Sem valor</p>
+                              )}
+                              <span className="text-[9px] uppercase font-black text-indigo-500 tracking-wider">Ativo</span>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
+                             <div className="bg-white p-2.5 rounded-xl border border-gray-100">
+                               <p className="text-gray-400 text-[10px] uppercase font-bold mb-0.5">Serviço</p>
+                               <p className="font-bold text-gray-700 truncate">{cliente.pedido}</p>
+                             </div>
+                             <div className="bg-white p-2.5 rounded-xl border border-gray-100">
+                               <p className="text-gray-400 text-[10px] uppercase font-bold mb-0.5">Contato</p>
+                               <p className="font-bold text-gray-700 truncate">{cliente.telefone}</p>
+                             </div>
+                          </div>
+
+                          <div className="flex gap-2">
+                             <button onClick={() => setClienteEditando({ ...cliente })} className="flex-1 bg-white border border-gray-200 text-gray-600 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                               <Pencil size={14} /> Editar
+                             </button>
+                             <button 
+                                onClick={async () => {
+                                  setGeneratingContractId(cliente.id);
+                                  try { await gerarContrato(cliente); } catch (err) { console.error('Erro contrato:', err); } finally { setGeneratingContractId(null); }
+                                }}
+                                disabled={generatingContractId === cliente.id}
+                                className="flex-1 bg-[#177BCA] text-white py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
+                             >
+                               {generatingContractId === cliente.id ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <FileText size={14} />}
+                               Contrato
+                             </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 ) : (
                   <div className="text-center py-16">
                     <div className="w-20 h-20 bg-gray-50 text-gray-300 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
@@ -483,6 +534,65 @@ export default function Admin() {
                   </div>
                 )}
               </div>
+
+              {/* Modal de cadastro direto de cliente */}
+              {showClienteForm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) setShowClienteForm(false); }}>
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                  <div className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl p-8 animate-[fadeIn_0.2s_ease-out]">
+                    <div className="flex items-center justify-between mb-8">
+                      <div>
+                        <h3 className="text-xl font-black text-[#0E1012]">Novo Cliente Direto</h3>
+                        <p className="text-sm text-gray-400 mt-0.5">Adicione um cliente já convertido.</p>
+                      </div>
+                      <button onClick={() => setShowClienteForm(false)} className="w-10 h-10 flex items-center justify-center rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-500"><X size={20} /></button>
+                    </div>
+
+                    <form 
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const clienteData = { ...newLead, status: 'Convertido', data: new Date().toLocaleDateString('pt-BR') };
+                        try { await supabase.from('leads').insert([clienteData]); } catch (err) {}
+                        const updated = [{ ...clienteData, id: Date.now() }, ...leads];
+                        setLeads(updated);
+                        localStorage.setItem('impacto_leads', JSON.stringify(updated));
+                        setNewLead({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '' });
+                        setShowClienteForm(false);
+                      }}
+                      className="space-y-5"
+                    >
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Nome Completo</label>
+                        <input type="text" required value={newLead.nome} onChange={(e) => setNewLead({...newLead, nome: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="Nome do cliente" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">E-mail</label>
+                          <input type="email" required value={newLead.email} onChange={(e) => setNewLead({...newLead, email: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="email@exemplo.com" />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">WhatsApp</label>
+                          <input type="tel" required value={newLead.telefone} onChange={(e) => setNewLead({...newLead, telefone: formatPhone(e.target.value)})} maxLength={15} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]" placeholder="(00) 00000-0000" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Serviço</label>
+                        <select value={newLead.pedido} onChange={(e) => setNewLead({...newLead, pedido: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]">
+                          <option value="Camisas Esportivas">Camisas Esportivas</option>
+                          <option value="Camisas Personalizadas">Camisas Personalizadas</option>
+                          <option value="Criações de Logotipo">Criações de Logotipo</option>
+                          <option value="Design Geral">Design Geral</option>
+                          <option value="Cards & Social Media">Cards & Social Media</option>
+                          <option value="Arte de Camisa">Arte de Camisa</option>
+                          <option value="Edição de Vídeo">Edição de Vídeo</option>
+                          <option value="Currículo Personalizado">Currículo Personalizado</option>
+                        </select>
+                      </div>
+                      <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-500/20 transition-all">Cadastrar Cliente Ativo</button>
+                    </form>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -667,73 +777,93 @@ export default function Admin() {
                       </button>
                     </div>
 
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="text-gray-400 text-sm border-b border-gray-100">
-                            <th className="pb-4 font-medium pl-4">Cliente</th>
-                            <th className="pb-4 font-medium">Contato</th>
-                            <th className="pb-4 font-medium">Pedido</th>
-                            <th className="pb-4 font-medium">Status / Data</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {leads.length > 0 ? leads.map(lead => (
-                            <tr key={lead.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
-                              <td className="py-4 pl-4">
-                                <p className="font-bold text-gray-900 group-hover:text-[#177BCA] transition-colors">{lead.nome}</p>
-                              </td>
-                              <td className="py-4">
-                                <p className="text-sm">{lead.email}</p>
-                                <p className="text-xs text-gray-400">{lead.telefone}</p>
-                              </td>
-                              <td className="py-4">
-                                <div className="flex flex-col items-start gap-1">
-                                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-50 text-purple-600 text-xs font-bold uppercase tracking-wide">
-                                    {lead.pedido}
-                                  </span>
-                                  {lead.detalhes && (
-                                    <p className="text-[10px] text-gray-400 italic max-w-[200px] truncate" title={lead.detalhes}>
-                                      "{lead.detalhes}"
-                                    </p>
-                                  )}
-                                  {lead.pedido && lead.pedido.startsWith('Camisas') && lead.tamanho && (
-                                    <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200 shadow-sm">
-                                      Tam: {lead.tamanho}
-                                    </span>
-                                  )}
-                                </div>
-                              </td>
-                               <td className="py-4">
-                                <div className="flex flex-col gap-1">
-                                  <div className="relative group/status">
+                    {leads.length > 0 ? (
+                      <>
+                        {/* Desktop Table */}
+                        <div className="hidden lg:block overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="text-gray-400 text-sm border-b border-gray-100">
+                                <th className="pb-4 font-medium pl-4">Cliente</th>
+                                <th className="pb-4 font-medium">Contato</th>
+                                <th className="pb-4 font-medium">Pedido</th>
+                                <th className="pb-4 font-medium">Status / Data</th>
+                                <th className="pb-4 font-medium">WhatsApp</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {leads.map(lead => (
+                                <tr key={lead.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
+                                  <td className="py-4 pl-4"><p className="font-bold text-gray-900">{lead.nome}</p></td>
+                                  <td className="py-4"><p className="text-sm">{lead.email}</p><p className="text-xs text-gray-400">{lead.telefone}</p></td>
+                                  <td className="py-4">
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full bg-purple-50 text-purple-600 text-xs font-bold uppercase tracking-wide">{lead.pedido}</span>
+                                  </td>
+                                  <td className="py-4">
                                     <select
                                       value={lead.status || 'Novo'}
                                       onChange={(e) => handleUpdateStatus(lead.id, e.target.value)}
-                                      className={`appearance-none inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#177BCA]/50 ${getStatusColor(lead.status)}`}
+                                      className={`appearance-none inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border cursor-pointer ${getStatusColor(lead.status)}`}
                                     >
-                                      {STATUS_OPTIONS.map(option => (
-                                        <option key={option} value={option} className="bg-white text-gray-900 font-sans normal-case tracking-normal text-sm">
-                                          {option}
-                                        </option>
-                                      ))}
+                                      {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                                     </select>
-                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-0 group-hover/status:opacity-100 transition-opacity">
-                                      <Settings className="w-3 h-3" />
-                                    </div>
+                                    <p className="text-[10px] text-gray-400 mt-1">{lead.data}</p>
+                                  </td>
+                                  <td className="py-4">
+                                    <a 
+                                      href={`https://wa.me/55${lead.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá ${lead.nome}, sou Wesley Rocha da Impacto Criativo. Vi seu pedido de ${lead.pedido} e gostaria de falar sobre seu projeto!`)}`}
+                                      target="_blank" rel="noopener noreferrer"
+                                      className="flex items-center gap-1.5 bg-[#25D366]/10 hover:bg-[#25D366] text-[#25D366] hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition-all"
+                                    >
+                                      <MessageSquare className="w-3.5 h-3.5" />
+                                      Falar
+                                    </a>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* Mobile Card List */}
+                        <div className="lg:hidden space-y-4">
+                          {leads.map(lead => (
+                            <div key={lead.id} className="bg-gray-50/50 rounded-3xl p-4 border border-gray-100">
+                               <div className="flex items-center justify-between mb-3">
+                                  <p className="font-black text-gray-900 text-sm">{lead.nome}</p>
+                                  <div className="flex gap-2">
+                                    <a 
+                                      href={`https://wa.me/55${lead.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá ${lead.nome}, sou Wesley Rocha da Impacto Criativo. Vi seu pedido de ${lead.pedido} e gostaria de falar sobre seu projeto!`)}`}
+                                      target="_blank" rel="noopener noreferrer"
+                                      className="p-2 bg-[#25D366] text-white rounded-lg shadow-sm"
+                                    >
+                                      <MessageSquare size={14} />
+                                    </a>
+                                    <select
+                                      value={lead.status || 'Novo'}
+                                      onChange={(e) => handleUpdateStatus(lead.id, e.target.value)}
+                                      className={`px-3 py-1 rounded-full text-[9px] font-black uppercase border outline-none ${getStatusColor(lead.status)}`}
+                                    >
+                                      {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                    </select>
                                   </div>
-                                  <p className="text-[10px] text-gray-400 font-medium">{lead.data}</p>
-                                </div>
-                              </td>
-                            </tr>
-                          )) : (
-                            <tr>
-                              <td colSpan="4" className="py-8 text-center text-gray-500">Nenhum lead encontrado.</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
+                               </div>
+                               <div className="flex items-center gap-2 mb-3">
+                                  <span className="bg-purple-100 text-purple-600 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wide">{lead.pedido}</span>
+                                  <div className="w-1 h-1 bg-gray-300 rounded-full" />
+                                  <p className="text-[10px] text-gray-400">{lead.data}</p>
+                               </div>
+                               <div className="text-xs text-gray-500 bg-white p-3 rounded-xl border border-gray-50">
+                                  <p className="truncate font-medium">{lead.email}</p>
+                                  <p className="font-bold text-gray-700">{lead.telefone}</p>
+                               </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="py-12 text-center text-gray-400">Nenhum lead encontrado.</div>
+                    )}
                   </div>
                 </>
               ) : (
@@ -852,9 +982,37 @@ export default function Admin() {
           )}
         </div>
       </main>
+
+      {/* Mobile Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 w-full bg-[#0E1012] border-t border-white/10 px-2 py-3 lg:hidden flex items-center justify-around z-50 backdrop-blur-xl">
+        <MobileNavItem icon={<LayoutDashboard />} label="Início" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+        <MobileNavItem icon={<Users />} label="Clientes" active={activeTab === 'clientes'} onClick={() => setActiveTab('clientes')} />
+        <MobileNavItem icon={<MessageSquare />} label="Pedidos" active={activeTab === 'pedidos'} onClick={() => setActiveTab('pedidos')} />
+        <MobileNavItem icon={<Settings />} label="Ajustes" active={activeTab === 'configuracoes'} onClick={() => setActiveTab('configuracoes')} />
+        <button onClick={handleLogout} className="flex flex-col items-center gap-1 text-red-400 p-2">
+          <LogOut size={20} />
+          <span className="text-[10px] font-bold">Sair</span>
+        </button>
+      </nav>
     </div>
   );
 }
+
+function MobileNavItem({ icon, label, active, onClick }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`flex flex-col items-center gap-1.5 p-2 transition-all ${active ? 'text-[#177BCA]' : 'text-gray-500'}`}
+    >
+      <div className={`p-2 rounded-xl transition-all ${active ? 'bg-[#177BCA]/10 scale-110' : ''}`}>
+        {React.cloneElement(icon, { size: 22 })}
+      </div>
+      <span className={`text-[10px] font-black uppercase tracking-widest ${active ? 'text-[#177BCA]' : 'text-gray-500'}`}>{label}</span>
+      {active && <div className="w-1 h-1 bg-[#177BCA] rounded-full mt-0.5 shadow-[0_0_8px_#177BCA]"></div>}
+    </button>
+  );
+}
+
 
 function SidebarLink({ icon, label, active = false, badge = null, onClick }) {
   return (

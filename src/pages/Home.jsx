@@ -36,6 +36,27 @@ export default function Home() {
     detalhes: ''
   });
   const [submitStatus, setSubmitStatus] = useState(null);
+  
+  // Intersection Observer for scroll animations
+  React.useEffect(() => {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    const elements = document.querySelectorAll('.reveal-on-scroll');
+    elements.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
 
   const formatPhone = (value) => {
     if (!value) return value;
@@ -215,20 +236,17 @@ export default function Home() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <div className="inline-flex items-center gap-3 py-2 px-6 rounded-full bg-white/5 border border-white/20 text-[#177BCA] text-xs font-bold tracking-[0.2em] mb-10 backdrop-blur-sm shadow-xl shadow-blue-500/5 group hover:bg-[#177BCA]/10 transition-all duration-300">
-            <Sparkles className="w-3.5 h-3.5 fill-current animate-pulse group-hover:scale-125 transition-transform" />
-            <span className="uppercase">Design & Comunicação Visual</span>
-          </div>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tight mb-8 leading-[1.1]">
+
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[8.5rem] font-black text-white tracking-tighter mb-8 leading-[0.9] text-balance animate-reveal">
             A energia da <br className="hidden md:block"/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#177BCA] via-blue-400 to-[#177BCA] animate-gradient-x">
               sua ideia.
             </span>
           </h1>
-          <p className="mt-6 text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-12 font-light leading-relaxed">
+          <p className="mt-8 text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-12 font-light leading-relaxed animate-fade-in [animation-delay:400ms]">
             Transformamos conceitos em visuais poderosos.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-5">
+          <div className="flex flex-col sm:flex-row justify-center gap-5 animate-fade-in [animation-delay:600ms]">
             <a href="#servicos" className="bg-gradient-to-r from-[#177BCA] to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1">
               Conheça nossos serviços
               <ChevronRight className="w-5 h-5" />
@@ -239,20 +257,16 @@ export default function Home() {
           </div>
         </div>
         
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-bounce">
-          <span className="text-gray-500 text-sm font-medium mb-2">Rolar para baixo</span>
-          <div className="w-1 h-8 bg-gradient-to-b from-gray-500 to-transparent rounded-full"></div>
-        </div>
+
       </section>
 
-      <section id="servicos" className="py-32 relative overflow-hidden bg-[#FAFAFA] textured textured-light grid-pattern">
+      <section id="servicos" className="pt-16 pb-32 relative overflow-hidden bg-[#FAFAFA] textured textured-light grid-pattern">
         {/* Decorative background glows */}
         <div className="absolute top-1/4 left-0 w-96 h-96 bg-blue-100/30 rounded-full blur-[100px] -translate-x-1/2"></div>
         <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-[#177BCA]/5 rounded-full blur-[100px] translate-x-1/2"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-10 border-b border-gray-100 pb-10">
+          <div className="text-center max-w-3xl mx-auto mb-10 border-b border-gray-100 pb-10 reveal-on-scroll">
             <div className="inline-flex items-center gap-3 text-[#177BCA] text-xs font-black tracking-[0.4em] uppercase mb-8">
               <div className="w-6 h-[1.5px] bg-[#177BCA]"></div>
               Especialidades
@@ -271,11 +285,13 @@ export default function Home() {
             {services.map((service, index) => (
               <div 
                 key={index} 
-                className="group relative bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 hover:-translate-y-2 transition-all duration-500 flex flex-col items-start"
+                className={`group relative bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 hover:-translate-y-2 transition-all duration-500 flex flex-col items-start reveal-on-scroll stagger-${(index % 4) + 1}`}
               >
                 <div className="mb-8 relative overflow-hidden inline-block transition-transform duration-500 group-hover:-translate-y-2">
                   <div className="w-16 h-16 bg-[#177BCA] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20 group-hover:rotate-6 transition-transform duration-500">
-                    {service.icon}
+                    <div className="animate-float" style={{ animationDelay: `${index * 0.2}s` }}>
+                      {service.icon}
+                    </div>
                   </div>
                 </div>
                 <h4 className="text-xl font-bold text-[#0E1012] mb-4 group-hover:text-[#177BCA] transition-colors tracking-tight">{service.title}</h4>
@@ -304,7 +320,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
             
-            <div className="lg:w-3/5 text-center lg:text-left">
+            <div className="lg:w-3/5 text-center lg:text-left reveal-on-scroll">
               <div className="flex items-center gap-3 text-blue-200 text-xs font-black tracking-[0.4em] uppercase mb-8 justify-center lg:justify-start">
                 <div className="w-10 h-[1px] bg-blue-300"></div>
                 O Próximo Passo
@@ -345,13 +361,13 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="lg:w-2/5 flex justify-center w-full">
+            <div className="lg:w-2/5 flex justify-center w-full reveal-on-scroll [transition-delay:300ms]">
                <div className="relative group">
                   {/* Background Aura */}
                   <div className="absolute inset-0 bg-blue-400 blur-[150px] opacity-20 group-hover:opacity-40 transition-opacity duration-1000"></div>
                   
                   {/* Elegant Energy Wheel System */}
-                  <div className="relative scale-90 sm:scale-100 lg:scale-125 transition-transform duration-700">
+                  <div className="relative scale-[0.65] sm:scale-90 lg:scale-110 xl:scale-125 transition-transform duration-700">
                      
                      {/* Outer Complex Ring */}
                      <div className="absolute inset-0 w-80 h-80 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 border border-white/5 rounded-full animate-[spin_50s_linear_infinite]"></div>
@@ -402,152 +418,232 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Lead Generator / Orçamento Section */}
-      <section id="contato" className="py-32 bg-gray-50 relative overflow-hidden textured textured-light grid-pattern">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-[#177BCA]/5 rounded-l-full blur-3xl pointer-events-none -translate-y-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-blue-400/10 rounded-r-full blur-3xl pointer-events-none translate-y-1/4"></div>
+      {/* Lead Generator — Premium Split Layout */}
+      <section id="contato" className="py-28 relative overflow-hidden textured textured-light" style={{ background: 'linear-gradient(150deg, #F0F7FF 0%, #FAFAFA 60%, #EBF4FB 100%)' }}>
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#177BCA]/6 rounded-full blur-[160px] pointer-events-none -translate-y-1/3 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-200/15 rounded-full blur-[140px] pointer-events-none translate-y-1/3 -translate-x-1/4" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="bg-white rounded-[3rem] shadow-2xl shadow-blue-900/5 overflow-hidden flex flex-col lg:flex-row border border-gray-100 textured textured-light grid-pattern">
-            {/* Left side: Info */}
-            <div className="w-full lg:w-5/12 bg-gradient-to-br from-[#0E1012] to-gray-900 p-12 lg:p-16 text-white flex flex-col justify-center relative">
-              <div className="absolute top-0 right-0 w-full h-full bg-[#177BCA]/20 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-              
-              <div className="relative z-10">
-                <h3 className="text-4xl font-black mb-6 leading-tight tracking-tight">
-                  Faça seu <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-[#177BCA]">Pedido</span> agora
-                </h3>
-                <p className="text-gray-400 font-light text-lg mb-10 leading-relaxed">
-                  Preencha o formulário e nossa equipe entrará em contato para dar andamento no seu projeto.
-                </p>
 
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center border border-white/20 Backdrop-blur-sm">
-                      <Clock className="w-5 h-5 text-blue-300" />
-                    </div>
-                    <div>
-                      <p className="font-bold">Resposta Rápida</p>
-                      <p className="text-gray-400 text-sm">Em até 30 minutos</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center border border-white/20 Backdrop-blur-sm">
-                      <Palette className="w-5 h-5 text-blue-300" />
-                    </div>
-                    <div>
-                      <p className="font-bold">Atendimento Personalizado</p>
-                      <p className="text-gray-400 text-sm">Para alinhar sua visão visualmente</p>
-                    </div>
-                  </div>
+          {/* Header */}
+          <div className="text-center mb-12 md:mb-16 px-4 reveal-on-scroll">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-[#0E1012] tracking-tight leading-[1.05] mb-4 text-balance">
+              Faça seu <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#177BCA] to-blue-400">Pedido</span> agora
+            </h2>
+            <p className="text-gray-400 text-base md:text-lg font-light max-w-lg mx-auto">
+              Escolha o serviço, preencha seus dados — retorno imediato via WhatsApp.
+            </p>
+          </div>
+
+          {/* Split Layout */}
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
+
+            {/* LEFT — Service Selector Card */}
+            <div className="h-full flex flex-col bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-blue-900/5 p-8 sm:p-10 relative overflow-hidden textured textured-light reveal-on-scroll">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#177BCA]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+              
+              <div className="flex items-center gap-4 mb-8 relative z-10">
+                <div className="w-10 h-10 rounded-full bg-[#177BCA] shadow-lg shadow-blue-500/30 flex items-center justify-center text-white font-black text-lg">
+                  1
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-[#0E1012] tracking-tight">
+                  Escolha o serviço
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10 flex-grow">
+                {[
+                  { value: 'Camisas Esportivas',    icon: <Shirt className="w-6 h-6" />, label: 'Camisas Esportivas',    desc: 'Times e uniformes' },
+                  { value: 'Camisas Personalizadas',icon: <Shirt className="w-6 h-6" />, label: 'Camisas Personalizadas', desc: 'Estampas exclusivas' },
+                  { value: 'Criações de Logotipo',  icon: <Hexagon className="w-6 h-6" />,  label: 'Logotipo',               desc: 'Identidade visual' },
+                  { value: 'Design Geral',           icon: <PenTool className="w-6 h-6" />,   label: 'Design Geral',           desc: 'Qualquer criação' },
+                  { value: 'Cards & Social Media',   icon: <Layout className="w-6 h-6" />,    label: 'Social Media',           desc: 'Posts e stories' },
+                  { value: 'Arte de Camisa',         icon: <Palette className="w-6 h-6" />,   label: 'Arte de Camisa',         desc: 'Vetores e artes' },
+                  { value: 'Edição de Vídeo',        icon: <Video className="w-6 h-6" />,    label: 'Edição de Vídeo',        desc: 'Reels, montagens' },
+                  { value: 'Currículo Personalizado',icon: <FileText className="w-6 h-6" />,  label: 'Currículo',               desc: 'Destaque-se' },
+                ].map((srv) => {
+                  const selected = formData.pedido === srv.value;
+                  return (
+                    <button
+                      key={srv.value}
+                      type="button"
+                      onClick={() => setFormData({...formData, pedido: srv.value})}
+                      className={`relative group flex flex-col items-start gap-2 p-5 rounded-3xl border-2 text-left transition-all duration-300 overflow-hidden ${
+                        selected
+                          ? 'border-[#177BCA] bg-white shadow-xl shadow-blue-900/10 scale-[1.02]'
+                          : 'border-gray-50 bg-gray-50/50 hover:border-[#177BCA]/30 hover:bg-white hover:shadow-lg'
+                      }`}
+                    >
+                      {/* Fundo sutil para o selecionado */}
+                      {selected && <div className="absolute inset-0 bg-gradient-to-br from-[#177BCA]/5 to-transparent pointer-events-none" />}
+                      
+                      <div className="flex items-center justify-between w-full relative z-10">
+                        <span className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${selected ? 'bg-[#177BCA]/10 text-[#177BCA] scale-110' : 'bg-white shadow-sm text-gray-500 group-hover:scale-105 group-hover:bg-[#177BCA]/5 group-hover:text-[#177BCA]'}`}>
+                          {srv.icon}
+                        </span>
+                        {selected && (
+                          <span className="w-6 h-6 bg-[#177BCA] rounded-full flex items-center justify-center shadow-md">
+                            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-2 relative z-10">
+                        <span className={`block text-sm font-black leading-tight ${selected ? 'text-[#177BCA]' : 'text-gray-900'}`}>
+                          {srv.label}
+                        </span>
+                        <span className="block text-xs text-gray-500 font-medium mt-1">{srv.desc}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Informações adicionais */}
+              <div className="mt-8 flex flex-wrap items-center gap-4 sm:gap-6 text-sm relative z-10">
+                <div className="flex items-center gap-2 text-gray-600 font-medium bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+                  <Clock className="w-4 h-4 text-[#177BCA]" />
+                  Retorno imediato
+                </div>
+                <div className="flex items-center gap-2 text-gray-600 font-medium bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+                  <CheckCircle className="w-4 h-4 text-[#177BCA]" />
+                  Sem compromisso
                 </div>
               </div>
             </div>
 
-            {/* Right side: Form */}
-            <div className="w-full lg:w-7/12 p-12 lg:p-16 relative z-10">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Seu Nome Completo</label>
-                    <input 
+            {/* RIGHT — Form Fields */}
+            <div className="h-full flex flex-col bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-blue-900/5 p-8 sm:p-10 relative overflow-hidden textured textured-light reveal-on-scroll">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#177BCA]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+              
+              <div className="flex items-center gap-4 mb-8 relative z-10">
+                <div className="w-10 h-10 rounded-full bg-[#177BCA] shadow-lg shadow-blue-500/30 flex items-center justify-center text-white font-black text-lg">
+                  2
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-[#0E1012] tracking-tight">
+                  Preencha seus dados
+                </h3>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6 relative z-10 flex-grow flex flex-col">
+
+                {/* Nome */}
+                <div className="group">
+                  <label className="block text-xs font-black text-gray-700 uppercase tracking-widest mb-2.5 group-focus-within:text-[#177BCA] transition-colors ml-1">
+                    Nome Completo
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#177BCA] transition-colors">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    </span>
+                    <input
                       type="text" required
                       value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
+                      className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl pl-12 pr-5 py-4 focus:outline-none focus:bg-white focus:border-[#177BCA]/50 transition-all text-[#0E1012] font-semibold placeholder:text-gray-400 placeholder:font-medium"
                       placeholder="Como gostaria de ser chamado?"
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Seu E-mail</label>
-                      <input 
+                </div>
+
+                {/* Email + Telefone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="group">
+                    <label className="block text-xs font-black text-gray-700 uppercase tracking-widest mb-2.5 group-focus-within:text-[#177BCA] transition-colors ml-1">
+                      E-mail
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#177BCA] transition-colors">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                      </span>
+                      <input
                         type="email" required
                         value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
-                        placeholder="contato@email.com"
+                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl pl-12 pr-5 py-4 focus:outline-none focus:bg-white focus:border-[#177BCA]/50 transition-all text-[#0E1012] font-semibold placeholder:text-gray-400 placeholder:font-medium"
+                        placeholder="seu@email.com"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Telefone / WhatsApp</label>
-                      <input 
+                  </div>
+                  <div className="group">
+                    <label className="block text-xs font-black text-gray-700 uppercase tracking-widest mb-2.5 group-focus-within:text-[#177BCA] transition-colors ml-1">
+                      WhatsApp
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#177BCA] transition-colors">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                      </span>
+                      <input
                         type="tel" required
                         value={formData.telefone} onChange={(e) => setFormData({...formData, telefone: formatPhone(e.target.value)})}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
+                        className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl pl-12 pr-5 py-4 focus:outline-none focus:bg-white focus:border-[#177BCA]/50 transition-all text-[#0E1012] font-semibold placeholder:text-gray-400 placeholder:font-medium"
                         placeholder="(00) 00000-0000"
                         maxLength="15"
                       />
                     </div>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">O que você precisa?</label>
-                    <div className="relative">
-                      <select 
-                        required
-                        value={formData.pedido} onChange={(e) => setFormData({...formData, pedido: e.target.value})}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 appearance-none focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all text-gray-900 cursor-pointer"
-                      >
-                        <option value="Camisas Esportivas">Camisas Esportivas</option>
-                        <option value="Camisas Personalizadas">Camisas Personalizadas</option>
-                        <option value="Criações de Logotipo">Criações de Logotipo</option>
-                        <option value="Design Geral">Design Geral</option>
-                        <option value="Cards & Social Media">Cards & Social Media</option>
-                        <option value="Arte de Camisa">Arte de Camisa</option>
-                        <option value="Edição de Vídeo">Edição de Vídeo</option>
-                        <option value="Currículo Personalizado">Currículo Personalizado</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-6 text-gray-500">
-                        <ChevronRight className="w-5 h-5 rotate-90" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {formData.pedido.startsWith('Camisas') && (
-                    <div className="animate-[fadeIn_0.3s_ease-out]">
-                      <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Tamanho da Camisa</label>
-                      <input 
-                        type="text" required
-                        value={formData.tamanho} onChange={(e) => setFormData({...formData, tamanho: e.target.value})}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
-                        placeholder="Ex: P, M, G ou GG"
-                      />
-                    </div>
-                  )}
-
-                  {!formData.pedido.startsWith('Camisas') && (
-                    <div className="animate-[fadeIn_0.3s_ease-out]">
-                      <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Informações Adicionais (Opcional)</label>
-                      <input 
-                        type="text"
-                        value={formData.detalhes} onChange={(e) => setFormData({...formData, detalhes: e.target.value})}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
-                        placeholder="Ex: Detalhes, referências ou dúvidas..."
-                      />
-                    </div>
-                  )}
                 </div>
 
-                <div className="pt-6">
-                  <button 
-                    type="submit" disabled={submitStatus === 'loading' || submitStatus === 'success'}
-                    className="w-full bg-[#177BCA] hover:bg-blue-600 text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-blue-500/30 flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+                {/* Tamanho ou Detalhes */}
+                {formData.pedido.startsWith('Camisas') ? (
+                  <div className="group">
+                    <label className="block text-xs font-black text-gray-700 uppercase tracking-widest mb-2.5 group-focus-within:text-[#177BCA] transition-colors ml-1">
+                      Tamanho da Camisa
+                    </label>
+                    <input
+                      type="text" required
+                      value={formData.tamanho} onChange={(e) => setFormData({...formData, tamanho: e.target.value})}
+                      className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:bg-white focus:border-[#177BCA]/50 transition-all text-[#0E1012] font-semibold placeholder:text-gray-400 placeholder:font-medium"
+                      placeholder="Ex: P, M, G, GG, XG..."
+                    />
+                  </div>
+                ) : (
+                  <div className="group">
+                    <label className="block text-xs font-black text-gray-700 uppercase tracking-widest mb-2.5 group-focus-within:text-[#177BCA] transition-colors ml-1">
+                      Detalhes adicionais <span className="normal-case font-medium text-gray-400">(opcional)</span>
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={formData.detalhes} onChange={(e) => setFormData({...formData, detalhes: e.target.value})}
+                      className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-5 py-4 focus:outline-none focus:bg-white focus:border-[#177BCA]/50 transition-all text-[#0E1012] font-semibold placeholder:text-gray-400 placeholder:font-medium resize-none leading-relaxed"
+                      placeholder="Descreva sua ideia, cores preferidas, referências visuais, estilo desejado..."
+                    />
+                  </div>
+                )}
+
+                {/* Submit - Push to bottom if needed */}
+                <div className="pt-4 mt-auto">
+                  <button
+                    type="submit"
+                    disabled={submitStatus === 'loading' || submitStatus === 'success'}
+                    className="w-full bg-[#177BCA] hover:bg-blue-600 text-white font-black py-5 rounded-2xl transition-all duration-300 shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 flex items-center justify-center gap-3 group disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0 text-lg"
                   >
                     {submitStatus === 'loading' ? (
-                       <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : submitStatus === 'success' ? (
-                       <span className="flex items-center gap-2"><CheckCircle className="w-5 h-5" /> Pedido Registrado!</span>
+                      <span className="flex items-center gap-2">
+                        <CheckCircle className="w-6 h-6" /> Pedido Registrado com Sucesso!
+                      </span>
                     ) : (
-                       <span className="flex items-center gap-2">Enviar Pedido <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
+                      <span className="flex items-center gap-2">
+                        Solicitar Orçamento
+                        <ChevronRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />
+                      </span>
                     )}
                   </button>
-                  <p className="text-center text-xs text-gray-400 mt-4">Ao enviar, nossa equipe entrará em contato o mais breve possível.</p>
+                  <div className="mt-5 flex justify-center items-center gap-2 text-xs text-gray-500 font-medium">
+                    <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    Informações seguras e confidenciais
+                  </div>
                 </div>
               </form>
             </div>
+
           </div>
         </div>
       </section>
+
+
+
 
       {/* Blue Footer */}
       <footer className="bg-[#177BCA] pt-16 pb-12 relative overflow-hidden textured textured-blue">
@@ -580,11 +676,13 @@ export default function Home() {
                 <span className="text-blue-100 font-medium group-hover:text-white transition-colors">contato@impactocriativo.com.br</span>
               </div>
               <div className="flex gap-3">
-                <a href="#" className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-[#177BCA] transition-all">
-                  <Instagram className="w-5 h-5" />
-                </a>
-                <a href="#" className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-[#177BCA] transition-all">
-                  <Facebook className="w-5 h-5" />
+                <a 
+                  href="https://www.instagram.com/impactocriativo77/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-[#177BCA] transition-all hover:scale-110 shadow-lg"
+                >
+                  <Instagram className="w-6 h-6" />
                 </a>
               </div>
             </div>
