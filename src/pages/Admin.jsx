@@ -371,7 +371,7 @@ export default function Admin() {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <StatCard label="Total de Pedidos" value={leads.length} change="Últimos 30 dias" />
-                <StatCard label="Projetos Ativos" value={leads.filter(l => l.status === 'Convertido').length} change="Total Convertido" />
+                <StatCard label="Serviços Realizados" value={leads.filter(l => l.status === 'Convertido').length} change="Total Convertido" />
                 <StatCard label="Volume Estimado" value={`R$ ${leads.reduce((acc, curr) => acc + (parseFloat(curr.valor) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} change="Faturamento total" />
               </div>
 
