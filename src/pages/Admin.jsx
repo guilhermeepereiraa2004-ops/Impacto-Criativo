@@ -36,9 +36,9 @@ export default function Admin() {
   const [showClienteForm, setShowClienteForm] = useState(false);
   const [leads, setLeads] = useState([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
-  const [newLead, setNewLead] = useState({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '', valor: '', cpf: '', rg: '' });
+  const [newLead, setNewLead] = useState({ nome: '', email: '', telefone: '', pedido: 'Camisas Esportivas', tamanho: '', detalhes: '', valor: '', cpf: '', rg: '', forma_pagamento: 'Pix', tipo_pagamento: 'À vista', entrada_porcentagem: '50%' });
   const [generatingContractId, setGeneratingContractId] = useState(null);
-  const [clienteEditando, setClienteEditando] = useState(null); // { id, nome, email, telefone, pedido, valor, cpf, rg, observacoes, ... }
+  const [clienteEditando, setClienteEditando] = useState(null); // { id, nome, email, telefone, pedido, valor, cpf, rg, observacoes, forma_pagamento, tipo_pagamento, entrada_porcentagem }
 
   const STATUS_OPTIONS = ['Novo', 'Contatado', 'Análise', 'Perdido', 'Convertido'];
   const SERVICES_OPTIONS = [
@@ -369,11 +369,10 @@ export default function Admin() {
           {activeTab === 'dashboard' && (
             <>
               {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard label="Total de Leads" value="0" change="0%" />
-                <StatCard label="Visitas Totais" value="0" change="0%" />
-                <StatCard label="Projetos Ativos" value="0" change="0%" />
-                <StatCard label="Ticket Médio" value="R$ 0" change="0%" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard label="Total de Pedidos" value={leads.length} change="Últimos 30 dias" />
+                <StatCard label="Projetos Ativos" value={leads.filter(l => l.status === 'Convertido').length} change="Total Convertido" />
+                <StatCard label="Volume Estimado" value={`R$ ${leads.reduce((acc, curr) => acc + (parseFloat(curr.valor) || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} change="Faturamento total" />
               </div>
 
               {/* Quick Actions / Content Management */}
@@ -633,13 +632,42 @@ export default function Admin() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Serviço</label>
-                          <select value={newLead.pedido} onChange={(e) => setNewLead({...newLead, pedido: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]">
+                          <select value={newLead.pedido} onChange={(e) => setNewLead({...newLead, pedido: e.target.value})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA]">
                             {SERVICES_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
                           </select>
                         </div>
                         <div>
                           <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Valor (R$)</label>
-                          <input type="number" step="0.01" value={newLead.valor} onChange={(e) => setNewLead({...newLead, valor: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] font-bold text-emerald-600" placeholder="0,00" />
+                          <input type="number" step="0.01" value={newLead.valor} onChange={(e) => setNewLead({...newLead, valor: e.target.value})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] font-bold text-emerald-600" placeholder="0,00" />
+                        </div>
+                      </div>
+
+                      {/* Pagamento */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Forma de Pagamento</label>
+                          <select value={newLead.forma_pagamento} onChange={(e) => setNewLead({...newLead, forma_pagamento: e.target.value})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#177BCA]">
+                             {['Pix', 'Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Transferência Bancária'].map(f => <option key={f} value={f}>{f}</option>)}
+                          </select>
+                        </div>
+                        <div className={newLead.tipo_pagamento === 'Parcelado' ? "grid grid-cols-2 gap-2" : ""}>
+                          <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Tipo</label>
+                            <select value={newLead.tipo_pagamento} onChange={(e) => setNewLead({...newLead, tipo_pagamento: e.target.value})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3.5 focus:outline-none focus:border-[#177BCA]">
+                               <option value="À vista">À vista</option>
+                               <option value="Parcelado">Parcelado</option>
+                            </select>
+                          </div>
+                          {newLead.tipo_pagamento === 'Parcelado' && (
+                            <div className="animate-[fadeIn_0.15s_ease-out]">
+                              <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Entrada</label>
+                              <select value={newLead.entrada_porcentagem} onChange={(e) => setNewLead({...newLead, entrada_porcentagem: e.target.value})} className="w-full font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3.5 focus:outline-none">
+                                 <option value="20%">20%</option>
+                                 <option value="50%">50%</option>
+                                 <option value="70%">70%</option>
+                              </select>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -681,25 +709,50 @@ export default function Admin() {
                       email: clienteEditando.email,
                       telefone: clienteEditando.telefone,
                       observacoes: clienteEditando.observacoes,
+                      forma_pagamento: clienteEditando.forma_pagamento,
+                      tipo_pagamento: clienteEditando.tipo_pagamento,
+                      entrada_porcentagem: clienteEditando.entrada_porcentagem,
                     });
                   }}
                   className="space-y-5"
                 >
-                  {/* Valor */}
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Valor do Serviço (R$)</label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">R$</span>
+                  {/* Pagamento e Valor */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Valor (R$)</label>
                       <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="0,00"
+                        type="number" step="0.01"
                         value={clienteEditando.valor || ''}
                         onChange={(e) => setClienteEditando(prev => ({ ...prev, valor: e.target.value }))}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl pl-10 pr-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all font-bold text-emerald-600"
+                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#177BCA] font-bold text-emerald-600"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Forma de Pagamento</label>
+                      <select value={clienteEditando.forma_pagamento} onChange={(e) => setClienteEditando(prev => ({ ...prev, forma_pagamento: e.target.value }))} className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#177BCA]">
+                         {['Pix', 'Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Transferência Bancária'].map(f => <option key={f} value={f}>{f}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Tipo</label>
+                      <select value={clienteEditando.tipo_pagamento} onChange={(e) => setClienteEditando(prev => ({ ...prev, tipo_pagamento: e.target.value }))} className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:border-[#177BCA]">
+                         <option value="À vista">À vista</option>
+                         <option value="Parcelado">Parcelado</option>
+                      </select>
+                    </div>
+                    {clienteEditando.tipo_pagamento === 'Parcelado' && (
+                      <div className="animate-[fadeIn_0.15s_ease-out]">
+                        <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Entrada</label>
+                        <select value={clienteEditando.entrada_porcentagem} onChange={(e) => setClienteEditando(prev => ({ ...prev, entrada_porcentagem: e.target.value }))} className="w-full font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3.5 focus:outline-none">
+                           <option value="20%">20%</option>
+                           <option value="50%">50%</option>
+                           <option value="70%">70%</option>
+                        </select>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -718,7 +771,7 @@ export default function Admin() {
                           if (v.length > 11) v = v.slice(0,11) + '-' + v.slice(11);
                           setClienteEditando(prev => ({ ...prev, cpf: v }));
                         }}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
+                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none"
                       />
                     </div>
                     {/* RG */}
@@ -730,7 +783,7 @@ export default function Admin() {
                         maxLength={12}
                         value={clienteEditando.rg || ''}
                         onChange={(e) => setClienteEditando(prev => ({ ...prev, rg: e.target.value }))}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
+                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -743,7 +796,7 @@ export default function Admin() {
                       required
                       value={clienteEditando.nome || ''}
                       onChange={(e) => setClienteEditando(prev => ({ ...prev, nome: e.target.value }))}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none"
                     />
                   </div>
 
@@ -755,7 +808,7 @@ export default function Admin() {
                         type="email"
                         value={clienteEditando.email || ''}
                         onChange={(e) => setClienteEditando(prev => ({ ...prev, email: e.target.value }))}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
+                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none"
                       />
                     </div>
                     {/* Telefone */}
@@ -766,7 +819,7 @@ export default function Admin() {
                         value={clienteEditando.telefone || ''}
                         onChange={(e) => setClienteEditando(prev => ({ ...prev, telefone: formatPhone(e.target.value) }))}
                         maxLength={15}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all"
+                        className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none"
                       />
                     </div>
                   </div>
@@ -775,11 +828,11 @@ export default function Admin() {
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Observações</label>
                     <textarea
-                      rows={3}
-                      placeholder="Notas internas sobre o cliente..."
+                      rows={2}
+                      placeholder="Notas internas..."
                       value={clienteEditando.observacoes || ''}
                       onChange={(e) => setClienteEditando(prev => ({ ...prev, observacoes: e.target.value }))}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-[#177BCA]/20 focus:border-[#177BCA] transition-all resize-none"
+                      className="w-full bg-gray-50 border border-gray-100 rounded-2xl px-5 py-3.5 focus:outline-none resize-none"
                     />
                   </div>
 

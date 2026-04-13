@@ -219,7 +219,7 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="relative pt-32 pb-20 lg:pt-52 lg:pb-40 bg-[#0E1012] overflow-hidden textured textured-dark">
+      <section id="home" className="relative min-h-screen flex items-center pt-20 bg-[#0E1012] overflow-hidden textured textured-dark">
         {/* Fullscreen Background Image with Overlay */}
         <div 
           className="absolute inset-0 z-0 opacity-50 bg-cover bg-center bg-no-repeat"
@@ -235,7 +235,7 @@ export default function Home() {
           <div className="absolute top-[20%] right-[20%] w-[20%] h-[20%] bg-purple-500/10 rounded-full blur-[100px]"></div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center w-full">
 
           <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[8.5rem] font-black text-white tracking-tighter mb-8 leading-[0.9] text-balance animate-reveal">
             A energia da <br className="hidden md:block"/>
