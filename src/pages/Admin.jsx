@@ -862,7 +862,7 @@ export default function Admin() {
                 <>
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                      <h3 className="text-2xl font-black">Gerenciador de Leads</h3>
+                      <h3 className="text-2xl font-black">Pedidos</h3>
                       <p className="text-gray-500">Acompanhe e cadastre novos pedidos.</p>
                     </div>
                     <button 
