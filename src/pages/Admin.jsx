@@ -179,40 +179,58 @@ export default function Admin() {
     setShowLeadForm(false);
   };
 
-  // Use environment variables for authentication
-  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
-  const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD;
-
+  // Check for existing session on mount
   useEffect(() => {
-    const authStatus = localStorage.getItem('admin_session');
-    if (authStatus === 'active') {
-      setIsAuthenticated(true);
-    }
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsAuthenticated(true);
+      }
+    };
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') setIsAuthenticated(true);
+      if (event === 'SIGNED_OUT') setIsAuthenticated(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogin = (e) => {
+
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simulate network delay for a more premium feel
-    setTimeout(() => {
-      if (email === ADMIN_EMAIL && password === ADMIN_PASS) {
-        setIsAuthenticated(true);
-        localStorage.setItem('admin_session', 'active');
-        localStorage.setItem('admin_email', email);
-        setError('');
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message === 'Invalid login credentials' 
+          ? 'E-mail ou senha incorretos. Por favor, tente novamente.' 
+          : error.message
+        );
       } else {
-        setError('E-mail ou senha incorretos. Por favor, tente novamente.');
+        setIsAuthenticated(true);
+        setError('');
       }
+    } catch (err) {
+      setError('Ocorreu um erro ao tentar fazer login. Tente novamente.');
+      console.error(err);
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setIsAuthenticated(false);
-    localStorage.removeItem('admin_session');
-    localStorage.removeItem('admin_email');
     setEmail('');
     setPassword('');
   };
